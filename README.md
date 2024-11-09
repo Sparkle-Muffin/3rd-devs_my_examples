@@ -1,226 +1,37 @@
-# AI_devs 3
+# 3rd-devs_my_examples
 
-Repozytorium zawiera przykłady z lekcji kursu AI_devs 3. 
-Więcej informacji znajdziesz na [aidevs.pl](https://aidevs.pl).
+## Overview
+I'm a developer participating in an online course named [AI_devs 3](https://www.aidevs.pl/). This repository contains examples from the original course, found [here](https://github.com/i-am-alice/3rd-devs/tree/main), converted from TypeScript to Python. 
 
-## Wymagania
+The purpose of this repository is to provide Python adaptations of the course's TypeScript examples. Examples will be successively converted and added here.
 
-Wszystkie przykłady zostały napisane w JavaScript / TypeScript i większość z nich zawiera kod backendowy do którego uruchomienia potrzebny jest Node.js oraz Bun.
+## Examples
 
-- [Node.js](https://nodejs.org)
-- [Bun](https://bun.sh)
+## Thread
 
-Upewnij się, że posiadasz najnowsze wersje Node.js oraz Bun zainstalowane na swoim komputerze.
+This example demonstrates a conversation between a user and an assistant, where a conversation summary mechanism is in place. Each new message from the user receives a response from the assistant, with a summary of the previous interaction included in the system message, allowing the assistant to reference prior conversation content.
 
-## Instalacja
+### Running the Example
 
-1. Pobierz repozytorium:
+1. Start the server:
    ```bash
-   git clone git@github.com:i-am-alice/3rd-devs.git
-   cd 3rd-devs
+   python thread/app.py
    ```
-
-2. Zainstaluj zależności:
+2. Demo interaction: Send a request to test the demo endpoint:
    ```bash
-   bun install
+   curl -X POST http://localhost:3000/api/demo
    ```
-3. Skopiuj plik `.env.example` do `.env` i wypełnij go kluczami API (na początek wystarczy klucz OpenAI).
+3. Chat interaction: Send a request to the /api/chat endpoint with the following JSON payload to initiate a conversation:
+   ```bash
+   curl -X POST http://localhost:3000/api/chat -H "Content-Type: application/json" -d '{"message": { "role": "user", "content": "Hi"}}'
+   ```
+   Alternatively, you can use the following JSON format for interaction:
 
-3. Uruchom dostępne przykłady z pliku `package.json`, według poniższej instrukcji.
+   ```json
+   {
+    "message": { "role": "user", "content": "Hi" }
+   }
+   ```
+   The /api/chat endpoint processes messages directed to the model, where each request makes three independent calls to OpenAI's API. The system message in each response includes a summary of the previous interaction to provide context for ongoing conversations.
 
-## S01E01
-
-### Thread
-
-Przykład przedstawia konwersację między użytkownikiem i asystentem, w której działa mechanizm podsumowania konwersacji.
-
-- Uruchomienie serwera: `bun run thread`
-- Interakcja demo: `curl -X POST http://localhost:3000/api/demo`
-- Interakcja chat: `curl -X POST http://localhost:3000/api/chat -H "Content-Type: application/json" -d '{"message": { "role": "user", "content": "Hi"}}'`
-
-Wywołanie powyższego endpointu uruchomi trzy niezależne zapytania do OpenAI, jednak w wiadomości systemowej zostanie przekazane podsumowanie poprzedniej interakcji, dzięki czemu model będzie miał możliwość odwołać się do ich treści.
-
-W przykładzie uwzględniony jest także endpoint `/api/chat` na który można przesłać obiekt { "message": "..." } zawierający treść wiadomości do modelu. Wątek zostanie zresetowany **dopiero po ponownym uruchomieniu serwera** (wciśnij CMD + C / Control + C i ponownie `bun run thread`).
-
-### Use Search
-
-UWAGA: przykład wymaga zainstalowania `promptfoo` w przypadku którego prawdopodobnie musisz to zrobić poleceniem `npm install promptfoo` ponieważ `bun install promptfoo` nie działa poprawnie w każdej sytuacji.
-
-- Uruchomienie skryptu: `bun use_search`
-
-Rezultatem działania skryptu jest tablica zawierająca kilkanaście przykładowych testów dla promptu decydującego o tym, czy skorzystanie z wyszukiwarki jest potrzebne. 
-
-### Pick domains
-
-- Uruchomienie skryptu: `bun pick_domains`
-
-Rezultatem działania skryptu jest tablica zawierająca kilkanaście przykładowych testów dla promptu generującego zapytania do wyszukiwarki Internetowej, wskazując także odpowiednie domeny.
-
-### Rate
-
-- Uruchomienie skryptu: `bun rate`
-
-Rezultatem działania skryptu jest tablica zawierająca kilkanaście przykładowych testów dla promptu oceniającego, czy odpowiedź modelu zawiera odpowiednie informacje.
-
-### Websearch
-
-Przykład ten korzysta z [Firecrawl](https://www.firecrawl.dev) do przeszukiwania Internetu oraz pobierania treści stron www. Konieczne jest więc uzupełnienie pliku `.env` wartości FIRECRAWL_API_KEY ustawionej na klucz API.
-(Firecrawl oferuje bezpłatny plan).
-
-- Uruchomienie serwera: `bun websearch`
-- Interakcja: 
-  ```bash
-  curl -X POST http://localhost:3000/api/chat \
-    -H "Content-Type: application/json" \
-    -d '{"messages": [{"role": "user", "content": "Search wiki for 'John Wick'"}]}'
-  ```
-
-Ważne: w pliku `websearch/app.ts` można zmienić listę domen, które są dopuszczalne do przeszukiwania i pobierania treści.
-
-## S01E02
-
-### Linear
-
-Uruchomienie tego przykładu wymaga uzupełnienia pliku `.env` i wartości `LINEAR_API_KEY` oraz `LINEAR_WEBHOOK_SECRET`.
-Obie wartości można znaleźć w [ustawieniach API](https://linear.app/overment/settings/api). Dodatkowo Twój localhost musi być dostępny z poza Twojej sieci lokalnej, np. za pomocą [ngrok](https://ngrok.com/). Publiczny adres URL należy także wskazać w panelu Linear w sekcji Webhooks, np.: `https://<ngrok-url>/api/linear/watch-issue` (pamiętaj o dodaniu właściwego endpointu do adresu).
-
-WAŻNE: w pliku `linear/prompts.ts` znajduje się prompt w którym zostały opisane **moje projekty** w Linear. 
-Aby skrypt działał poprawnie, musisz zmodyfikować ten prompt, tak aby zawierał identyfikatory oraz opisy Twoich projektów.
-
-Listę projektów i ich identyfikatory możesz pobrać korzystając z endpointu `/api/linear/projects`.
-
-- Uruchomienie serwera: `bun linear`
-- Pobranie listy projektów: `curl http://localhost:3000/api/linear/projects`
-- Po dodaniu nowego wpisu w Twoim linearze, zostanie on automatycznie przypisany do projektu zgodnie z zasadami w promptach, o ile nie został przypisany przez Ciebie ręcznie.
-
-### Files
-
-- Uruchomienie serwera: `bun files`
-- Interakcja: 
-  ```bash
-  curl -X POST http://localhost:3000/api/chat \
-    -H "Content-Type: application/json" \
-    -d '{"messages": [{"role": "user", "content": "Hey there, what\'s up?"}], "conversation_id": "d7582176-bc52-4ef3-980a-047b868f9f49"}'
-  ```
-
-Przykład ten pokazuje mechanizm podejmowania decyzji o zapamiętywaniu informacji na podstawie kontekstu rozmowy. 
-Dodatkowo w przypadku podania `conversation_id` w obiekcie żądania, do rozmowy zostaną wczytane wszystkie wiadomości dotyczące konkretnej rozmowy.
-
-Wszystkie pliki zapisywane są w folderze `files/context`, a sam katalog można otworzyć w aplikacji [Obsidian](https://obsidian.md/) aby zobaczyć powiązania pomiędzy wspomnieniami.
-
-## S01E03
-
-### Langfuse
-
-Ten przykład wymaga uzupełnienia pliku `.env` o wartości `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY` oraz `LANGFUSE_HOST`. Można je uzyskać zakładając bezpłatne konto na [Langfuse](https://langfuse.com/).
-
-- Uruchomienie serwera: `bun langfuse`
-- Interakcja: 
-  ```bash
-  curl http://localhost:3000/api/chat \
-    -H "Content-Type: application/json" \
-    -d '{"messages": [{"role": "user", "content": "Hey there, what\'s up?"}]}'
-  ```
-
-Po wykonaniu zapytania, zostanie ono automatycznie zalogowane do Langfuse, a wynik wyświetlony w panelu.
-
-### Tiktokenizer
-
-- Uruchomienie serwera: `bun tiktokenizer`
-- Interakcja:
-  ```bash
-  curl http://localhost:3000/api/chat \
-    -H "Content-Type: application/json" \
-    -d '{"messages": [{"role": "user", "content": "Hey there, what\'s up?"}], "model": "gpt-4o"}'
-  ```
-
-Przykład ten pokazuje mechanizm liczenia tokenów w zapytaniach do modeli OpenAI (np. gpt-4o).
-
-### Max tokens
-
-Przykład ten pokazuje jeden mechanizm pozwalający na kontynuowanie wypowiedzi modelu, pomimo osiągnięcia maksymalnej liczby tokenów wyjściowych (output tokens).
-
-- Uruchomienie serwera: `bun max_tokens`
-- Interakcja: 
-  ```bash
-  curl http://localhost:3000/api/chat \
-    -H "Content-Type: application/json" \
-    -d '{"messages": [{"role": "user", "content": "Write ten sentences about apples and put them in order."}]}'
-  ```
-
-### Constitution
-
-Przykład ten przedstawia mechanizm blokowania zapytań, które nie spełniają warunków określonych w prompcie `/constitution/prompts.ts`.
-
-- Uruchomienie serwera: `bun constitution`
-- Interakcja:
-  ```bash
-  curl http://localhost:3000/api/chat \
-    -H "Content-Type: application/json" \
-    -d '{"messages": [{"role": "user", "content": "Hello!"}]}'
-  ```
-
-## S01E04
-
-### Memory
-
-Ten przykład po uruchomieniu tworzy katalog memories w którym zapisywane są pliki markdown, pełniące rolę pamięci modelu.
-Nie jest to przykład nadający się na produkcję, lecz przedstawia ogólne mechaniki pamięci długoterminowej, które będziemy rozwijać w dalszych lekcjach.
-
-- Uruchomienie serwera: `bun memory`
-- Interakcja:
- ```bash
-  curl http://localhost:3000/api/chat \
-    -H "Content-Type: application/json" \
-    -d '{"messages": [{"role": "user", "content": "Hello!"}]}'
-  ```
-
-## S01E05
-
-### External
-
-Ten przykład zawiera standardową logikę interakcji z modelem, ale wymaga podania klucza API w nagłówku `Authorization` w formacie `Bearer <klucz>`. Wartość klucza zostaje wczytana z pliku `.env` jako `PERSONAL_API_KEY`. Dodatkowo zostały dodane mechanizmy ograniczania liczby zapytań, więc po kilku próbach ponowne wywołanie zapytania zwróci błąd 429.
-
-- Uruchomienie serwera: `bun external`
-- Interakcja:
-  ```bash
-  curl http://localhost:3000/api/chat \
-    -H "Content-Type: application/json" \
-    -d '{"messages": [{"role": "user", "content": "Hello!"}]}'
-  ```
-
-### Prompts
-
-**UWAGA**: Aby uruchomić ten przykład konieczne jest nawiązanie połączenie z Langfuse poprzez uzupełnienie pliku `.env` o wartości `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY` oraz `LANGFUSE_HOST`. Dodatkowo na Twoim koncie musisz utworzyć nowy prompt o nazwie `Answer`, którego wartość możesz ustawić na np. 'Odpowiadaj pisząc wyłącznie wielkimi literami', aby tylko sprawdzić działanie mechanizmu.
-
-- Uruchomienie serwera: `bun prompts`
-- Interakcja:
-  ```bash
-  curl http://localhost:3000/api/chat \
-    -H "Content-Type: application/json" \
-    -d '{"messages": [{"role": "user", "content": "Hello!"}]}'
-  ```
-
-### Database
-
-Ten przykład nie dotyczy bezpośrednio działania LLM, lecz przedstawia sposób organizacji informacji w bazie danych, takich jak konwersacje czy historia wiadomości.
-
-- Uruchomienie serwera: `bun database`
-- Interakcja:
-  ```bash
-  curl http://localhost:3000/api/chat \
-    -H "Content-Type: application/json" \
-    -d '{"messages": [{"role": "user", "content": "Hello!"}]}'
-  ```
-
-### Qdrant
-
-Przykład ten przedstawia **absolutnie podstawowe** połączenie z bazą wektorową Qdrant. Jego zadaniem jest zapisywanie historii wiadomości, a następnie wyszukiwanie i wczytywanie do kontekstu rozmowy najbardziej podobnych wiadomości. Przykład ten będziemy rozbudowywać w dalszych lekcjach, łącząc się z Qdrant w bardziej złożonych konfiguracjach.
-
-- Uruchomienie serwera: `bun qdrant`
-- Interakcja:
-  ```bash
-  curl http://localhost:3000/api/chat \
-    -H "Content-Type: application/json" \
-    -d '{"messages": [{"role": "user", "content": "Hello!"}]}'
-  ```
+   The thread will reset only upon server restart. To reset, stop the server (CMD + C / Control + C) and restart it using the command from point 1.
